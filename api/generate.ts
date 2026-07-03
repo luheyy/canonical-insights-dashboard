@@ -14,9 +14,15 @@ export default async function handler(req: any, res: any) {
 Generate a fresh competitive brief for the "${tab}" tab of an Ubuntu competitive dashboard.
 If "Ubuntu Platform": focus on desktop competitors (Windows 11, Fedora Workstation, Pop!_OS, Linux Mint, ChromeOS Flex).
 If "IoT & Devices": focus on Wind River, Yocto, BalenaOS, Windows IoT, AWS/Azure IoT.
+
+IMPORTANT RULES:
+- Frame every item as a CURRENT development. Do NOT use any calendar year or month (no "2024", no "May 2024"). 
+- For every "freshness" field, use ONLY a relative recency label such as "Today", "2 days ago", "This week", or "5 days ago" — nothing older than 7 days.
+- Keep each competitor's angle plausible and tied to why it matters for Ubuntu.
+
 Output ONLY raw JSON, no markdown, no commentary, matching exactly this shape:
 {"pulse":[{"competitor":"","freshness":"","move":"","impact":""}],"signals":[{"tag":"","isTrend":false,"sourceUrl":"","sourceDomain":"","sourceType":"","freshness":"","headline":"","ageDays":1,"highlights":[{"claim":"","breakdown":["",""]}]}],"pmm":{"header":"🎯 PORTFOLIO ACTION MOVE:","actions":["",""]}}
-Include 4 pulse items and 4 signals.`;
+Include 4 pulse items and 4 signals. Set ageDays between 0 and 6.`;
 
     const r = await ai.models.generateContent({
       model: "gemini-2.5-flash",
