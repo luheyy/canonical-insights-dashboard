@@ -91,10 +91,9 @@ function SignalCardView({ card, onRefresh }: { card: SignalCard; onRefresh: () =
     <div className="signal-card">
       <div className="signal-top">
         <span className={"tag" + (card.isTrend ? " tag-trend" : "")}>{card.tag}</span>
-        <a className="source" href={card.sourceUrl} target="_blank" rel="noreferrer">
-          {card.sourceDomain}
-          <ExternalIcon />
-        </a>
+       <span className="source source-static">
+        {card.sourceDomain}
+        </span>
       </div>
       <div className="signal-meta">
         <span className="source-type">{card.sourceType}</span>
