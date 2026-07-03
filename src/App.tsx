@@ -1,9 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { GoogleGenAI } from "@google/genai";
 import intelligenceData, {
   type SignalCard,
   type PulseItem,
   type TabData,
 } from "./data/intelligenceData";
+
+// Initialize the Gemini Client utilizing your secure Vercel environment variable
+const ai = new GoogleGenAI({
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY || "",
+});
 
 const ACTIVE_TABS = ["Ubuntu Platform", "IoT & Devices"] as const;
 const LOCKED_TABS = ["Apps & Data", "Security", "Infrastructure"] as const;
@@ -11,12 +17,18 @@ const LOCKED_TABS = ["Apps & Data", "Security", "Infrastructure"] as const;
 type ActiveTab = (typeof ACTIVE_TABS)[number];
 
 function useExecTime() {
-  // Stable per page-load "Last exec" clock, formatted HH:MM:SS.
-  return useMemo(() => {
-    const d = new Date();
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const [currentTime, setCurrentTime] = useState("");
+  
+  useEffect(() => {
+    const formatTime = () => {
+      const d = new Date();
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+    setCurrentTime(formatTime());
   }, []);
+
+  return currentTime;
 }
 
 function RefreshIcon() {
@@ -87,7 +99,7 @@ function PulseCard({ item }: { item: PulseItem }) {
   );
 }
 
-function SignalCardView({ card }: { card: SignalCard }) {
+function SignalCardView({ card, onRefresh }: { card: SignalCard; onRefresh: () => void }) {
   return (
     <div className="signal-card">
       <div className="signal-top">
@@ -119,7 +131,7 @@ function SignalCardView({ card }: { card: SignalCard }) {
         ))}
       </div>
       <div className="card-footer">
-        <button className="refresh-btn" type="button">
+        <button className="refresh-btn" type="button" onClick={onRefresh}>
           <RefreshIcon />
           Refresh
         </button>
@@ -128,7 +140,7 @@ function SignalCardView({ card }: { card: SignalCard }) {
   );
 }
 
-function TabView({ data, execTime }: { data: TabData; execTime: string }) {
+function TabView({ data, execTime, onCardRefresh }: { data: TabData; execTime: string; onCardRefresh: () => void }) {
   const sortedSignals = [...data.signals].sort((a, b) => a.ageDays - b.ageDays);
 
   return (
@@ -157,7 +169,7 @@ function TabView({ data, execTime }: { data: TabData; execTime: string }) {
         <h2 className="section-title">Competitive Signal Feed</h2>
         <div className="signal-grid">
           {sortedSignals.map((c, i) => (
-            <SignalCardView card={c} key={i} />
+            <SignalCardView card={c} key={i} onRefresh={onCardRefresh} />
           ))}
         </div>
       </section>
@@ -182,11 +194,99 @@ function TabView({ data, execTime }: { data: TabData; execTime: string }) {
 
 export default function App() {
   const [tab, setTab] = useState<ActiveTab>("Ubuntu Platform");
-  const execTime = useExecTime();
-  const data = intelligenceData[tab];
+  const [aiData, setAiData] = useState<Record<ActiveTab, TabData | null>>({
+    "Ubuntu Platform": null,
+    "IoT & Devices": null,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [displayTime, setDisplayTime] = useState("10:53:03");
+  const systemTime = useExecTime();
+
+  // Unified dynamic insight generator connecting directly to Gemini
+  const fetchAiIntelligence = async (targetTab: ActiveTab) => {
+    setIsLoading(true);
+    try {
+      // 1. Ingest raw core text file directly from your repository asset layer
+      const kbUrl = "https://raw.githubusercontent.com/luheyy/canonical-insights-hub/main/knowledge-base.txt";
+      const response = await fetch(kbUrl);
+      if (!response.ok) throw new Error("Knowledge base asset unreachable");
+      const knowledgeBaseText = await response.text();
+
+      // 2. Transmit prompt instruction to Gemini 2.5 Flash
+      const aiResponse = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: `
+          You are an expert Competitive Intelligence Analyst for Canonical's Product Marketing Management (PMM) team.
+          Analyze this tracking knowledge base: "${knowledgeBaseText}".
+          
+          Generate context targeting the active tracking tab: "${targetTab}".
+          - If the tab is "Ubuntu Platform", pull insights from core spaces, cloud virtualization shifts (VMware core TCO shifts), WSL/Active Directory controls, and Multipass utilities.
+          - If the tab is "IoT & Devices", isolate elements from Module 5 (Ubuntu Core, read-only immutability, Yocto/Buildroot patch gaps, over-the-air safe rollbacks, 2026 Cyber Resilience Act compliance, RISC-V targets).
+          
+          Return your parsing result as a clean, single minified JSON object matching this structure precisely. Do not enclose the output inside markdown blocks:
+          {
+            "pulse": [
+              { "competitor": "STRING", "freshness": "STRING", "move": "STRING", "impact": "STRING" }
+            ],
+            "signals": [
+              {
+                "tag": "STRING",
+                "isTrend": true,
+                "sourceUrl": "STRING",
+                "sourceDomain": "STRING",
+                "sourceType": "STRING",
+                "freshness": "STRING",
+                "headline": "STRING",
+                "ageDays": 1,
+                "highlights": [
+                  { "claim": "STRING", "breakdown": ["STRING", "STRING"] }
+                ]
+              }
+            ],
+            "pmm": {
+              "header": "STRING",
+              "actions": ["STRING", "STRING"]
+            }
+          }
+        `,
+      });
+
+      // 3. Clean and parse generative payload into structural dashboard context
+      const cleanText = aiResponse.text.replace(/```json|```/g, "").trim();
+      const parsedData = JSON.parse(cleanText) as TabData;
+      
+      setAiData(prev => ({ ...prev, [targetTab]: parsedData }));
+      if (systemTime) setDisplayTime(systemTime);
+    } catch (error) {
+      console.error("AI Generation Fallback Triggered:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Run generation automatically when mounting or switching tabs
+  useEffect(() => {
+    if (!aiData[tab]) {
+      fetchAiIntelligence(tab);
+    }
+  }, [tab]);
+
+  // Handle local fallback context fallback gracefully
+  const activeData = aiData[tab] || intelligenceData[tab];
 
   return (
-    <div className="app">
+    <div className={`app ${isLoading ? "opacity-60 pointer-events-none transition-opacity" : ""}`}>
+      {isLoading && (
+        <div style={{
+          position: 'fixed', top: '24px', right: '24px', zIndex: 1000,
+          background: '#E95420', color: 'white', padding: '6px 12px',
+          borderRadius: '4px', fontSize: '11px', fontFamily: 'monospace',
+          fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+        }}>
+          ⏳ GEMINI SYNCHRONIZING PIPELINES...
+        </div>
+      )}
+
       <header className="topbar">
         <div className="brand">
           <span className="u-badge">U</span>
@@ -195,9 +295,14 @@ export default function App() {
         <div className="topbar-right">
           <span className="exec-pill">
             <span className="exec-dot" />
-            Last exec <strong>{execTime}</strong>
+            Last exec <strong>{displayTime}</strong>
           </span>
-          <button className="refresh-all" type="button">
+          <button 
+            className="refresh-all" 
+            type="button" 
+            onClick={() => fetchAiIntelligence(tab)}
+            disabled={isLoading}
+          >
             <BoltIcon />
             REFRESH ALL
           </button>
@@ -224,11 +329,11 @@ export default function App() {
       </nav>
 
       <main className="content">
-        <TabView data={data} execTime={execTime} />
+        <TabView data={activeData} execTime={displayTime} onCardRefresh={() => fetchAiIntelligence(tab)} />
       </main>
 
       <footer className="foot">
-        Prototype · representative competitive intelligence · content is illustrative
+        Prototype · powered by Gemini Live API Ingestion · source context: knowledge-base.txt
       </footer>
     </div>
   );
