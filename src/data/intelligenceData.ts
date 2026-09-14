@@ -3,6 +3,10 @@
 // Ubuntu Platform tab is aimed at DESKTOP competitors (Windows, Fedora
 // Workstation, Pop!_OS, Linux Mint, ChromeOS Flex). Content is illustrative
 // but grounded in real 2025-2026 trends; treat timestamps as placeholders.
+// Security, Infrastructure, and Apps & Data tabs are new and thinner —
+// the Apps & Data competitor list was not named in the scoping sheet, so
+// its baseline leans on the stated battlegrounds (open source database,
+// AI infrastructure, OS for AI) rather than named rivals.
 
 export type PulseItem = {
   competitor: string;
@@ -37,7 +41,9 @@ export type TabData = {
   };
 };
 
-const intelligenceData: Record<"Ubuntu Platform" | "IoT & Devices", TabData> = {
+export type TabName = "Ubuntu Platform" | "IoT & Devices" | "Security" | "Infrastructure" | "Apps & Data";
+
+const intelligenceData: Record<TabName, TabData> = {
   "Ubuntu Platform": {
     pulse: [
       {
@@ -300,6 +306,13 @@ const intelligenceData: Record<"Ubuntu Platform" | "IoT & Devices", TabData> = {
         impact: "Ubuntu Core + snaps ships the missing signed, atomic OS layer underneath",
         freshness: "4 days ago",
       },
+      {
+        competitor: "Device connectivity platforms (Particle, Blues Wireless, ClearBlade, Blynk)",
+        move: "Managed device-connectivity platforms keep undercutting on price for small fleets, while DIY stacks stay the default for cost-sensitive teams",
+        impact:
+          "Ubuntu Core + Landscape needs a lightweight on-ramp so hobbyist-to-production teams don't default to a bespoke connectivity stack",
+        freshness: "3 days ago",
+      },
     ],
     signals: [
       {
@@ -494,6 +507,32 @@ const intelligenceData: Record<"Ubuntu Platform" | "IoT & Devices", TabData> = {
           },
         ],
       },
+      {
+        tag: "IoT Connectivity Platforms",
+        isTrend: true,
+        sourceType: "Dev Forum",
+        sourceDomain: "reddit.com/r/embedded",
+        sourceUrl: "https://www.reddit.com/r/embedded",
+        freshness: "3 days ago",
+        ageDays: 3,
+        headline: "Device teams keep weighing managed connectivity platforms against a DIY stack",
+        highlights: [
+          {
+            claim: "Managed device-cloud platforms win early prototypes on speed to first device online",
+            breakdown: [
+              "Low-code fleet dashboards and cellular/BLE SDKs shorten the first-device demo",
+              "Pricing scales per-device fast once a pilot moves toward production volume",
+            ],
+          },
+          {
+            claim: "DIY remains the default once teams hit real OTA and compliance requirements",
+            breakdown: [
+              "Firmware engineers cite vendor lock-in on the connectivity layer as the trigger to go bespoke",
+              "Ubuntu Core + snaps offers the signed, atomic update layer a DIY stack would otherwise have to build",
+            ],
+          },
+        ],
+      },
     ],
     pmm: {
       header: "🎯 PORTFOLIO ACTION MOVE:",
@@ -501,6 +540,349 @@ const intelligenceData: Record<"Ubuntu Platform" | "IoT & Devices", TabData> = {
         "Lead all Wind River and Windows IoT LTSC displacement bids with Ubuntu Core's 10-year lifecycle + snap atomic updates as the single differentiator, backed by Landscape as the fleet control-plane.",
         "Publish a 'Yocto exit path' migration guide and OEM playbook — position Ubuntu Core + brand store as the end of the meta-layer treadmill, especially for teams facing CRA obligations.",
         "Formalize a joint reference architecture with AWS Greengrass and Azure IoT Operations that names Ubuntu Core + MicroK8s as the recommended base, converting hyperscaler momentum into Canonical co-sell pipeline.",
+        "Ship a lightweight, free-tier on-ramp (Ubuntu Core + Landscape trial) aimed at teams currently prototyping on managed connectivity platforms or a DIY stack, so the switch to Canonical happens before they scale to production.",
+      ],
+    },
+  },
+
+  Security: {
+    pulse: [
+      {
+        competitor: "Red Hat",
+        move: "Continues folding predictive CVE remediation into RHEL's subscription tier",
+        impact:
+          "Ubuntu Pro + ESM needs transparent per-node pricing to stay the wedge against Red Hat's bundled security add-ons",
+        freshness: "1 day ago",
+      },
+      {
+        competitor: "Chainguard",
+        move: "Pushes 'zero-CVE' hardened base images further into the enterprise supply-chain conversation",
+        impact: "Raises the bar on provenance and SBOM claims that ESM / Livepatch messaging needs to match",
+        freshness: "2 days ago",
+      },
+      {
+        competitor: "Open Source Security Patching",
+        move: "Patch-automation tooling keeps consolidating as CISOs demand estate-wide coverage, not point fixes",
+        impact: "Landscape's single-pane patch + compliance view answers fragmented point-tool sprawl",
+        freshness: "This week",
+      },
+      {
+        competitor: "Enterprise Linux Estate Management",
+        move: "Mixed-distro estates are pushing security teams toward unified compliance reporting",
+        impact: "ESM + Landscape's cross-release coverage differentiates against single-distro patching tools",
+        freshness: "4 days ago",
+      },
+    ],
+    signals: [
+      {
+        tag: "Red Hat",
+        sourceType: "Infra Outlet",
+        sourceDomain: "thehackernews.com",
+        sourceUrl: "https://thehackernews.com",
+        freshness: "1 day ago",
+        ageDays: 1,
+        headline: "Red Hat leans on bundled CVE remediation to defend its subscription tier",
+        highlights: [
+          {
+            claim: "RHEL positions predictive patching as an included subscription benefit",
+            breakdown: [
+              "Bundling makes per-node cost comparisons harder for buyers to run cleanly",
+              "Ubuntu Pro + ESM's flat, transparent pricing is the direct counter",
+            ],
+          },
+          {
+            claim: "Enterprise buyers still ask for cross-distro compliance reporting",
+            breakdown: [
+              "Landscape's single-pane view spans releases in a way single-vendor tooling doesn't",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "Chainguard",
+        sourceType: "Security Outlet",
+        sourceDomain: "securityweek.com",
+        sourceUrl: "https://www.securityweek.com",
+        freshness: "2 days ago",
+        ageDays: 2,
+        headline: "Chainguard's 'zero-CVE' base images keep pressuring the supply-chain narrative",
+        highlights: [
+          {
+            claim: "Hardened, minimal images are winning early mindshare in container-security RFPs",
+            breakdown: [
+              "Claims center on drastically reduced CVE surface area versus stock base images",
+              "ESM / Livepatch messaging needs an equally sharp provenance and SBOM story",
+            ],
+          },
+          {
+            claim: "Coverage is narrower than a full OS estate",
+            breakdown: ["Chainguard's focus is container base images, not the full Linux estate ESM covers"],
+          },
+        ],
+      },
+      {
+        tag: "Open Source Security Patching",
+        isTrend: true,
+        sourceType: "Infra Outlet",
+        sourceDomain: "computerweekly.com",
+        sourceUrl: "https://www.computerweekly.com",
+        freshness: "This week",
+        ageDays: 3,
+        headline: "CISOs push patch automation vendors toward estate-wide, not point, coverage",
+        highlights: [
+          {
+            claim: "Point patching tools are getting consolidated into platform plays",
+            breakdown: [
+              "Buyers cite tool sprawl and inconsistent SLAs across patch vendors",
+              "Landscape's combined patch + compliance + fleet view fits the consolidation trend",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "Enterprise Linux Estate Management",
+        isTrend: true,
+        sourceType: "Sysadmin Forum",
+        sourceDomain: "reddit.com/r/sysadmin",
+        sourceUrl: "https://www.reddit.com/r/sysadmin",
+        freshness: "4 days ago",
+        ageDays: 4,
+        headline: "Mixed-distro estates strain unified compliance reporting",
+        highlights: [
+          {
+            claim: "Security teams manage multiple distros without one compliance view",
+            breakdown: [
+              "Audit prep becomes manual reconciliation across per-distro tools",
+              "ESM + Landscape's cross-release coverage is a clean answer to the reconciliation problem",
+            ],
+          },
+        ],
+      },
+    ],
+    pmm: {
+      header: "🎯 PORTFOLIO ACTION MOVE:",
+      actions: [
+        "Build a transparent per-node pricing comparison against Red Hat's bundled CVE remediation, aimed at CISOs evaluating true security TCO.",
+        "Publish an ESM + Livepatch provenance/SBOM brief that answers Chainguard's 'zero-CVE' framing head-on for supply-chain-focused buyers.",
+        "Position Landscape as the consolidation play for security teams drowning in point patch tools across a mixed-distro estate.",
+      ],
+    },
+  },
+
+  Infrastructure: {
+    pulse: [
+      {
+        competitor: "Red Hat OpenShift / OpenStack",
+        move: "Continues bundling Kubernetes and private-cloud tooling into a single subscription stack",
+        impact: "Canonical K8s + OpenStack need a clear unbundled, lower-TCO story for the same workloads",
+        freshness: "1 day ago",
+      },
+      {
+        competitor: "VMware VCF / vSphere (Broadcom)",
+        move: "Post-acquisition licensing changes keep driving migration-readiness conversations",
+        impact: "Canonical MicroCloud is a direct landing spot for VMware customers reassessing licensing",
+        freshness: "2 days ago",
+      },
+      {
+        competitor: "Nutanix AHV",
+        move: "Expands hyperconverged infrastructure push into accounts displaced by VMware licensing changes",
+        impact: "Canonical MicroCloud + Ceph competes on the same displaced-VMware opportunity",
+        freshness: "3 days ago",
+      },
+      {
+        competitor: "Proxmox VE",
+        move: "Keeps gaining homelab-to-SMB virtualization mindshare as a free VMware alternative",
+        impact: "Canonical MicroCloud needs an equally simple on-ramp story to catch upmarket-bound Proxmox users",
+        freshness: "5 days ago",
+      },
+    ],
+    signals: [
+      {
+        tag: "Red Hat OpenShift / OpenStack",
+        sourceType: "Infra Outlet",
+        sourceDomain: "theregister.com",
+        sourceUrl: "https://www.theregister.com",
+        freshness: "1 day ago",
+        ageDays: 1,
+        headline: "Red Hat's bundled Kubernetes + private-cloud stack keeps pricing conversations opaque",
+        highlights: [
+          {
+            claim: "OpenShift + OpenStack bundling makes apples-to-apples TCO comparisons hard for buyers",
+            breakdown: [
+              "Canonical K8s and Canonical OpenStack can be adopted independently at transparent per-node pricing",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "VMware VCF / vSphere",
+        sourceType: "Sysadmin Forum",
+        sourceDomain: "reddit.com/r/vmware",
+        sourceUrl: "https://www.reddit.com/r/vmware",
+        freshness: "2 days ago",
+        ageDays: 2,
+        headline: "VMware licensing changes keep fueling active migration-readiness threads",
+        highlights: [
+          {
+            claim: "Post-acquisition licensing shifts remain the top-cited migration trigger",
+            breakdown: [
+              "Admins are actively comparing MicroCloud, Proxmox, and Nutanix as landing spots",
+              "Canonical MicroCloud's simple per-node model is a direct pitch into this displacement wave",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "Nutanix AHV",
+        sourceType: "Vendor Blog",
+        sourceDomain: "nutanix.com/blog",
+        sourceUrl: "https://www.nutanix.com/blog",
+        freshness: "3 days ago",
+        ageDays: 3,
+        headline: "Nutanix expands HCI push into VMware-displacement accounts",
+        highlights: [
+          {
+            claim: "Nutanix is explicitly courting the same displaced-VMware buyer segment",
+            breakdown: [
+              "Canonical MicroCloud + Ceph competes for the same accounts with an open-source, unbundled stack",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "Proxmox VE",
+        isTrend: true,
+        sourceType: "Homelab Forum",
+        sourceDomain: "reddit.com/r/proxmox",
+        sourceUrl: "https://www.reddit.com/r/proxmox",
+        freshness: "5 days ago",
+        ageDays: 5,
+        headline: "Proxmox keeps climbing from homelab into SMB virtualization budgets",
+        highlights: [
+          {
+            claim: "Proxmox's free tier and simple UI are winning SMB accounts leaving VMware",
+            breakdown: [
+              "MicroCloud needs an equally low-friction on-ramp to catch this segment before it scales up",
+            ],
+          },
+        ],
+      },
+    ],
+    pmm: {
+      header: "🎯 PORTFOLIO ACTION MOVE:",
+      actions: [
+        "Publish an unbundled-pricing comparison of Canonical K8s + OpenStack against Red Hat's bundled OpenShift/OpenStack stack for TCO-focused buyers.",
+        "Run a dedicated 'VMware licensing migration' campaign positioning Canonical MicroCloud + Ceph as the direct landing spot for displaced VCF/vSphere accounts.",
+        "Ship a simplified MicroCloud on-ramp aimed at Proxmox's SMB and homelab-to-production segment before those accounts scale toward Nutanix or VMware.",
+      ],
+    },
+  },
+
+  "Apps & Data": {
+    pulse: [
+      {
+        competitor: "Open Source Database Landscape",
+        move: "Enterprise buyers keep consolidating database support contracts around fewer vendors",
+        impact: "Canonical's open source database support needs a clear 'why us' versus bundled cloud-DB offers",
+        freshness: "2 days ago",
+      },
+      {
+        competitor: "Open Source AI Infrastructure",
+        move: "Private-cloud-for-AI positioning keeps intensifying as teams look to avoid hyperscaler AI lock-in",
+        impact: "Canonical's AI infrastructure stack should lead with the same no-lock-in framing for AI workloads",
+        freshness: "3 days ago",
+      },
+      {
+        competitor: "\"OS for AI\" positioning race",
+        move: "Multiple vendors are now explicitly marketing an OS layer tuned for AI workloads",
+        impact: "Ubuntu's default-choice status among AI/ML engineers is the asset to defend here",
+        freshness: "This week",
+      },
+      {
+        competitor: "HPC / AI orchestration (Slurm ecosystem)",
+        move: "AWS ParallelCluster and similar managed HPC offerings keep adjusting Slurm enterprise licensing terms",
+        impact:
+          "A fully supported Slurm + Ray stack on private bare metal is a clean counter-pitch for HPC/AI leads",
+        freshness: "4 days ago",
+      },
+    ],
+    signals: [
+      {
+        tag: "Open Source Database Landscape",
+        isTrend: true,
+        sourceType: "Infra Outlet",
+        sourceDomain: "theregister.com",
+        sourceUrl: "https://www.theregister.com",
+        freshness: "2 days ago",
+        ageDays: 2,
+        headline: "Buyers keep consolidating database support spend around fewer vendors",
+        highlights: [
+          {
+            claim: "Procurement teams are cutting the number of database support vendors they carry",
+            breakdown: [
+              "Consolidation favors a vendor with a clear open source database support and services story",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "Open Source AI Infrastructure",
+        isTrend: true,
+        sourceType: "Infra Outlet",
+        sourceDomain: "zdnet.com",
+        sourceUrl: "https://www.zdnet.com",
+        freshness: "3 days ago",
+        ageDays: 3,
+        headline: "Private-cloud-for-AI pitches intensify as teams look past hyperscaler lock-in",
+        highlights: [
+          {
+            claim: "Teams increasingly frame AI infrastructure choices around avoiding lock-in",
+            breakdown: [
+              "\"No vendor lock in\" and \"gain control over your TCO\" are recurring claims worth tracking",
+            ],
+          },
+        ],
+      },
+      {
+        tag: "OS for AI",
+        isTrend: true,
+        sourceType: "Dev Forum",
+        sourceDomain: "news.ycombinator.com",
+        sourceUrl: "https://news.ycombinator.com",
+        freshness: "This week",
+        ageDays: 4,
+        headline: "More vendors explicitly market an 'OS for AI' positioning",
+        highlights: [
+          {
+            claim: "The OS layer is becoming an explicit AI-workload battleground, not just infrastructure",
+            breakdown: ["Ubuntu's existing default-choice status among ML engineers is the asset to defend"],
+          },
+        ],
+      },
+      {
+        tag: "HPC / AI Orchestration",
+        sourceType: "Vendor Blog",
+        sourceDomain: "aws.amazon.com/blogs/hpc",
+        sourceUrl: "https://aws.amazon.com/blogs/hpc/",
+        freshness: "4 days ago",
+        ageDays: 4,
+        headline: "AWS ParallelCluster licensing shifts open a window for a supported Slurm alternative",
+        highlights: [
+          {
+            claim: "Enterprise add-on licensing terms for Slurm on ParallelCluster keep shifting",
+            breakdown: [
+              "A fully supported Slurm + Ray stack on private bare metal is a clean, SDR-ready counter-pitch",
+            ],
+          },
+        ],
+      },
+    ],
+    pmm: {
+      header: "🎯 PORTFOLIO ACTION MOVE:",
+      actions: [
+        "Publish a database-support consolidation pitch aimed at procurement teams cutting vendor count, leading with open source database support and services.",
+        "Lead AI-infrastructure conversations with a 'no lock-in, transparent TCO' framing to match how buyers are already describing the private-cloud-for-AI battleground.",
+        "Launch a targeted campaign highlighting Canonical's fully supported Slurm + Ray stack whenever AWS ParallelCluster licensing terms shift, routing leads directly to the AI/HPC sales desk.",
       ],
     },
   },
