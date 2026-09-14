@@ -5,8 +5,13 @@ import intelligenceData, {
   type TabData,
 } from "./data/intelligenceData";
 
-const ACTIVE_TABS = ["Ubuntu Platform", "IoT & Devices"] as const;
-const LOCKED_TABS = ["Apps & Data", "Security", "Infrastructure"] as const;
+const ACTIVE_TABS = [
+  "Ubuntu Platform",
+  "IoT & Devices",
+  "Security",
+  "Infrastructure",
+  "Apps & Data",
+] as const;
 
 type ActiveTab = (typeof ACTIVE_TABS)[number];
 
@@ -37,21 +42,6 @@ function BoltIcon() {
   return (
     <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
       <path fill="currentColor" d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" className="lock">
-      <path
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 10V8a6 6 0 0 1 12 0v2m-13 0h14v10H5z"
-      />
     </svg>
   );
 }
@@ -191,6 +181,9 @@ export default function App() {
   const [aiData, setAiData] = useState<Record<ActiveTab, TabData | null>>({
     "Ubuntu Platform": null,
     "IoT & Devices": null,
+    Security: null,
+    Infrastructure: null,
+    "Apps & Data": null,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -264,11 +257,6 @@ export default function App() {
           >
             {t}
           </button>
-        ))}
-        {LOCKED_TABS.map((t) => (
-          <span key={t} className="tab tab-locked" aria-disabled="true">
-            {t} <LockIcon />
-          </span>
         ))}
       </nav>
 
